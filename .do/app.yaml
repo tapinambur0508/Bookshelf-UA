@@ -1,0 +1,78 @@
+name: bookshelf
+region: fra
+
+services:
+  - name: backend
+    github:
+      repo: tapinambur0508/Bookshelf-UA
+      branch: main
+      deploy_on_push: true
+    source_dir: backend
+    build_command: npm ci && npm run build
+    run_command: npm start
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    http_port: 8080
+    routes:
+      - path: /api
+    health_check:
+      http_path: /health
+      initial_delay_seconds: 10
+      period_seconds: 10
+      timeout_seconds: 3
+      success_threshold: 1
+      failure_threshold: 3
+    envs:
+      - key: NODE_ENV
+        value: production
+        scope: RUN_TIME
+      - key: DB_URI
+        value: your-mongodb-atlas-connection-string
+        scope: RUN_TIME
+        type: SECRET
+      - key: PORT
+        value: "8080"
+        scope: RUN_TIME
+      - key: HOST
+        value: "0.0.0.0"
+        scope: RUN_TIME
+      - key: FRONTEND_URL
+        value: ${frontend.PUBLIC_URL}
+        scope: RUN_TIME
+      - key: AUTH0_DOMAIN
+        value: your-auth0-domain.auth0.com
+        scope: RUN_TIME
+        type: SECRET
+      - key: AUTH0_AUDIENCE
+        value: your-api-identifier
+        scope: RUN_TIME
+        type: SECRET
+
+static_sites:
+  - name: frontend
+    github:
+      repo: tapinambur0508/Bookshelf-UA
+      branch: main
+      deploy_on_push: true
+    source_dir: frontend
+    build_command: npm ci && npm run build
+    output_dir: dist
+    catchall_document: index.html
+    routes:
+      - path: /
+    envs:
+      - key: VITE_API_URL
+        value: ${backend.PUBLIC_URL}
+        scope: BUILD_TIME
+      - key: VITE_AUTH0_DOMAIN
+        value: your-auth0-domain.auth0.com
+        scope: BUILD_TIME
+        type: SECRET
+      - key: VITE_AUTH0_CLIENT_ID
+        value: your-auth0-client-id
+        scope: BUILD_TIME
+        type: SECRET
+      - key: VITE_AUTH0_AUDIENCE
+        value: your-api-identifier
+        scope: BUILD_TIME
+        type: SECRET

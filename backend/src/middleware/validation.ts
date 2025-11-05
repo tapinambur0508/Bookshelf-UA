@@ -1,31 +1,33 @@
 import { Request, Response, NextFunction } from "express";
-import { Schema } from "joi";
+import { Schema, ValidationError } from "joi";
 
 function validate(schema: Schema) {
-  return (req: Request, res: Response, next: NextFunction): void => {
-    const { error, value } = schema.validate(
-      {
-        query: req.query,
-        params: req.params,
-        body: req.body,
-      },
-      {
-        abortEarly: false,
-        allowUnknown: true,
-        stripUnknown: false,
-      },
-    );
+  return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      await schema.validateAsync(
+        {
+          query: req.query,
+          params: req.params,
+          body: req.body,
+        },
+        {
+          abortEarly: false,
+          allowUnknown: true,
+          stripUnknown: false,
+        },
+      );
 
-    if (error !== undefined) {
-      res.status(400).json({ error: error.details.map((err) => err.message).join(", ") });
-      return;
+      next();
+    } catch (error: unknown) {
+      if (error instanceof ValidationError) {
+        res.status(400).json({
+          error: error.details.map((err) => err.message).join(", "),
+        });
+        return;
+      }
+
+      next(error);
     }
-
-    req.query = value.query;
-    req.params = value.params;
-    req.body = value.body;
-
-    next();
   };
 }
 

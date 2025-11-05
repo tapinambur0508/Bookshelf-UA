@@ -1,4 +1,4 @@
-# Backend
+# Bookshelf Backend
 
 This is a web server that allows users to perform CRUD (Create, Read, Update, Delete) operations on a list of books stored in a MongoDB database.
 
@@ -31,18 +31,18 @@ The following API endpoints are available:
 
 Returns a paginated list of books in the database. The response body contains the following properties:
 
-* `books`: An array of books in the requested page.
-* `meta`: An object containing metadata about the pagination, including:
-  * `currentPage`: The current page number.
-  * `totalPages`: The total number of pages.
-  * `totalCount`: The total number of books in the database.
+- `books`: An array of books in the requested page.
+- `meta`: An object containing metadata about the pagination, including:
+  - `currentPage`: The current page number.
+  - `totalPages`: The total number of pages.
+  - `totalCount`: The total number of books in the database.
 
 #### Query Parameters
 
 The following query parameters can be used to customize the pagination:
 
-* `page`: The page number to retrieve. The default is 1.
-* `limit`: The maximum number of books to return per page. The default is 50.
+- `page`: The page number to retrieve. The default is 1.
+- `limit`: The maximum number of books to return per page. The default is 50.
 
 ### `GET /books/:id`
 
@@ -52,15 +52,15 @@ Returns the book with the specified `id`.
 
 Adds a new book to the database. The request body should contain a JSON object with the following properties:
 
-* `title`: The title of the book (string, required)
-* `author`: The author of the book (string, required)
+- `title`: The title of the book (string, required)
+- `author`: The author of the book (string, required)
 
 ### `PUT /books/:id`
 
 Updates the book with the specified `id`. Returns the updated book. The request body should contain a JSON object with following properties:
 
-* `title`: The title of the book (string, required)
-* `author`: The author of the book (string, required)
+- `title`: The title of the book (string, required)
+- `author`: The author of the book (string, required)
 
 ### `DELETE /books/:id`
 

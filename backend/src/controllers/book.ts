@@ -1,20 +1,22 @@
 import { Request, Response } from "express";
 
+import { DEFAULT_PAGE, DEFAULT_LIMIT, HTTP_STATUS } from "../constants/http";
+
 import * as BookRepository from "../repositories/book";
 
 export async function find(req: Request, res: Response): Promise<Response> {
   const { page, limit } = req.query as { page?: string; limit?: string };
 
-  const pageNum = Number(page) || 1;
-  const limitNum = Number(limit) || 50;
+  const pageNum = Number(page) || DEFAULT_PAGE;
+  const limitNum = Number(limit) || DEFAULT_LIMIT;
 
-  const p1 = BookRepository.find(pageNum, limitNum);
-  const p2 = BookRepository.count();
+  const [books, totalCount] = await Promise.all([
+    BookRepository.find(pageNum, limitNum),
+    BookRepository.count(),
+  ]);
 
-  const [docs, totalCount] = await Promise.all([p1, p2]);
-
-  return res.status(200).json({
-    books: docs,
+  return res.status(HTTP_STATUS.OK).json({
+    books,
     meta: {
       currentPage: pageNum,
       totalPages: Math.ceil(totalCount / limitNum),
@@ -29,10 +31,10 @@ export async function findById(req: Request, res: Response): Promise<Response> {
   const doc = await BookRepository.findById(id);
 
   if (doc === null) {
-    return res.status(404).end();
+    return res.status(HTTP_STATUS.NOT_FOUND).end();
   }
 
-  return res.status(200).json(doc);
+  return res.status(HTTP_STATUS.OK).json(doc);
 }
 
 export async function create(req: Request, res: Response): Promise<Response> {
@@ -43,7 +45,7 @@ export async function create(req: Request, res: Response): Promise<Response> {
 
   await BookRepository.create(payload);
 
-  return res.status(204).end();
+  return res.status(HTTP_STATUS.NO_CONTENT).end();
 }
 
 export async function updateById(req: Request, res: Response): Promise<Response> {
@@ -57,10 +59,10 @@ export async function updateById(req: Request, res: Response): Promise<Response>
   const doc = await BookRepository.updateById(id, payload);
 
   if (doc === null) {
-    return res.status(404).end();
+    return res.status(HTTP_STATUS.NOT_FOUND).end();
   }
 
-  return res.status(200).json(doc);
+  return res.status(HTTP_STATUS.OK).json(doc);
 }
 
 export async function deleteById(req: Request, res: Response): Promise<Response> {
@@ -69,8 +71,8 @@ export async function deleteById(req: Request, res: Response): Promise<Response>
   const result = await BookRepository.deleteById(id);
 
   if (result.deletedCount === 0) {
-    return res.status(404).end();
+    return res.status(HTTP_STATUS.NOT_FOUND).end();
   }
 
-  return res.status(204).end();
+  return res.status(HTTP_STATUS.NO_CONTENT).end();
 }
